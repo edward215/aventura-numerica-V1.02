@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Islas de las Tablas</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Comic Sans MS", sans-serif;
+      background: linear-gradient(to top, #1e90ff 50%, #87ceeb 100%);
+      overflow-x: hidden;
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .cloud {
+      position: absolute;
+      font-size: 40px;
+      color: white;
+      font-weight: bold;
+      opacity: 0.4;
+      animation: floatClouds 60s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes floatClouds {
+      from {
+        left: -20%;
+      }
+
+      to {
+        left: 120%;
+      }
+    }
+
+    #map-container {
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+      margin-top: 60px;
+    }
+
+    #isla-slider {
+      display: flex;
+      transition: transform 0.4s ease;
+      will-change: transform;
+    }
+
+    .isla-item {
+      min-width: 100vw;
+      max-width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .isla-item img {
+      width: 80vw;
+      max-width: 400px;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      color: #FFD700;
+      /* Amarillo fuerte */
+      pointer-events: none;
+      animation: bounce 1.5s infinite;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Botón adicional para escoger isla */
+    #btn-islas {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #btn-islas:hover {
+      background-color: #187bcd;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        transform: translate(-50%, -55%) scale(1.1);
+      }
+    }
+
+    #bloqueado-msg {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff7d1;
+      color: #444;
+      padding: 20px;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      font-size: 18px;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    #game {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90vw;
+      max-width: 480px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      display: none;
+      text-align: center;
+    }
+
+    .drop-zone {
+      border: 2px dashed #555;
+      padding: 20px;
+      margin-top: 15px;
+      border-radius: 10px;
+      background-color: #f0f8ff;
+    }
+
+    .draggable {
+      background: #ffd700;
+      border: 2px solid #daa520;
+      padding: 10px 15px;
+      margin: 8px;
+      display: inline-block;
+      cursor: grab;
+      font-size: 18px;
+      border-radius: 8px;
+    }
+
+    #result {
+      margin-top: 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .decor {
+      position: absolute;
+      width: 60px;
+      opacity: 0.8;
+    }
+
+    .bird {
+      top: 40px;
+      right: 10%;
+      animation: flyBird 10s infinite alternate ease-in-out;
+    }
+
+    @keyframes flyBird {
+      from {
+        transform: translateX(0px);
+      }
+
+      to {
+        transform: translateX(-30px) translateY(10px);
+      }
+    }
+
+    .boat {
+      bottom: 10px;
+      left: 20px;
+      animation: floatBoat 5s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatBoat {
+      from {
+        transform: translateY(0px);
+      }
+
+      to {
+        transform: translateY(-10px);
+      }
+    }
+
+    #congrats {
+      font-size: 22px;
+      font-weight: bold;
+      color: green;
+      margin-top: 20px;
+      background-color: #e0ffe0;
+      padding: 15px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    #congrats button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #congrats button:hover {
+      background-color: #45a049;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background-color: #FFD700;
+      color: #333;
+      padding: 10px 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      z-index: 150;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #FFC300;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+      }
+
+      30% {
+        transform: scale(1.3);
+      }
+
+      60% {
+        transform: scale(0.9);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .cofre-animado {
+      animation: pop 0.6s ease-in-out;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Nubes -->
+  <div class="cloud" style="top: 30px; left: 10%;">5</div>
+  <div class="cloud" style="top: 100px; left: 30%; animation-delay: 10s;">8</div>
+  <div class="cloud" style="top: 50px; left: 60%; animation-delay: 20s;">3</div>
+  <div class="cloud" style="top: 120px; left: 80%; animation-delay: 30s;">7</div>
+  <div class="cloud" style="top: 80px; left: 5%; animation-delay: 15s;">X</div>
+  <div class="cloud" style="top: 40px; left: 25%; animation-delay: 18s;">2</div>
+  <div class="cloud" style="top: 60px; left: 50%; animation-delay: 25s;">9</div>
+
+  <!-- Decoración -->
+  <img src="../assets/juego3/ave.png" class="decor bird" alt="ave decorativa">
+  <img src="../assets/juego3/barco.png" class="decor boat" alt="barco decorativo">
+
+  <!-- Contenedor de islas -->
+  <div id="map-container">
+    <div id="isla-slider"></div>
+  </div>
+
+  <!-- Mensaje bloqueado -->
+  <div id="bloqueado-msg">🔒 Esta isla aún está bloqueada.<br />¡Debes completar la isla anterior para desbloquearla! 🌟
+  </div>
+
+  <!-- Juego -->
+  <div id="game">
+    <h2 id="titulo-isla">Isla Tabla del 1</h2>
+    <div id="question"></div>
+    <div class="drop-zone" id="drop-zone">Arrastra aquí la respuesta correcta</div>
+    <div id="options"></div>
+    <div id="result"></div>
+    <div id="congrats">
+      🎉 ¡Felicidades! Puedes avanzar a la siguiente isla. 🌴<br><br>
+      <button id="btn-inicio">🏠 Volver al inicio</button>
+      <button id="btn-seguir">🎮 Seguir jugando</button>
+      <button id="btn-islas">🔁 Escoger isla</button>
+    </div>
+  </div>
+  <a href="../principal/principal.html" class="back-button">⮌ Inicio</a>
+  <!-- Cofre de recompensa -->
+  <div id="cofre-popup"
+    style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.5); text-align: center; z-index: 2000;">
+    <img id="cofre-img" src="../assets/juego3/cofre-close.png" alt="Cofre" style="width: 120px; transition: 0.4s ease;">
+    <br>
+    <button id="abrir-cofre-btn"
+      style="margin-top: 10px; background: gold; padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+      🪙 Abrir cofre
+    </button>
+    <div id="recompensa-texto" style="margin-top: 15px; font-size: 18px; display: none;">
+      Has ganado <span id="monedas-ganadas" style="font-weight: bold;"></span>
+      <img src="../assets/moneda.png" alt="Moneda" style="width: 20px; vertical-align: middle;">
+    </div>
+  </div>
+
+  <script>
+    const maxTable = 9;
+    let currentTable = 1;
+    let unlockedIslas = [];
+    let currentAnswer;
+    let correctStreak = 0;
+    let currentSlide = 0;
+
+    const dropZone = document.getElementById('drop-zone');
+    const resultEl = document.getElementById('result');
+    const tituloIsla = document.getElementById('titulo-isla');
+    const gameBox = document.getElementById('game');
+    const congratsBox = document.getElementById('congrats');
+    const slider = document.getElementById('isla-slider');
+    const msg = document.getElementById('bloqueado-msg');
+
+    dropZone.addEventListener('dragover', e => e.preventDefault());
+    dropZone.addEventListener('drop', handleDrop);
+    let cofresContador = 0;
+    const cofrePopup = document.getElementById('cofre-popup');
+    const cofreImg = document.getElementById('cofre-img');
+    const abrirBtn = document.getElementById('abrir-cofre-btn');
+    const textoRecompensa = document.getElementById('recompensa-texto');
+    const monedasSpan = document.getElementById('monedas-ganadas');
+
+    function verificarCofre() {
+      cofresContador++;
+      const randomUmbral = Math.floor(Math.random() * 4) + 3; // cada 2 o 3 jugadas
+
+      if (cofresContador >= randomUmbral) {
+        cofresContador = 0;
+        mostrarCofre();
+      }
+    }
+
+    function mostrarCofre() {
+      cofreImg.src = '../assets/juego3/cofre-close.png';
+      textoRecompensa.style.display = 'none';
+      abrirBtn.style.display = 'inline-block';
+      cofrePopup.style.display = 'block';
+    }
+
+    abrirBtn.addEventListener('click', () => {
+      abrirBtn.style.display = 'none';
+      cofreImg.src = '../assets/juego3/cofre-open.png';
+      cofreImg.classList.add('cofre-animado');
+      const recompensa = Math.floor(Math.random() * 15) + 1;
+      monedasSpan.textContent = recompensa;
+      textoRecompensa.style.display = 'block';
+
+      let monedasActuales = parseInt(localStorage.getItem('monedasUsuario') || '0');
+      monedasActuales += recompensa;
+      localStorage.setItem('monedasUsuario', monedasActuales);
+
+      setTimeout(() => {
+        cofrePopup.style.display = 'none';
+        cofreImg.classList.remove('cofre-animado');
+      }, 3000);
+    });
+
+    function saveProgress() {
+      localStorage.setItem('islasDesbloqueadas', JSON.stringify(unlockedIslas));
+    }
+
+    function loadProgress() {
+      const data = localStorage.getItem('islasDesbloqueadas');
+      if (data) {
+        unlockedIslas = JSON.parse(data);
+      } else {
+        unlockedIslas = [1];
+      }
+    }
+
+    function renderIslas() {
+      slider.innerHTML = '';
+      for (let i = 1; i <= maxTable; i++) {
+        const div = document.createElement('div');
+        div.className = 'isla-item';
+
+        const img = document.createElement('img');
+        img.src = `../assets/juego3/isla${i}.png`;
+
+        if (unlockedIslas.includes(i)) {
+          img.onclick = () => {
+            currentTable = i;
+            currentSlide = i - 1;
+            updateSlidePosition();
+            updateView();
+            gameBox.style.display = 'block';
+            congratsBox.style.display = 'none';
+            correctStreak = 0;
+            startGame(i);
+          };
+        } else {
+          const lock = document.createElement('div');
+          lock.className = 'lock-overlay';
+          lock.innerHTML = '🔒';
+          div.appendChild(lock);
+          img.style.opacity = '0.5';
+          img.onclick = () => {
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+          };
+        }
+
+        div.appendChild(img);
+        slider.appendChild(div);
+      }
+
+      updateSlidePosition();
+    }
+
+    function updateView() {
+      tituloIsla.textContent = `Isla Tabla del ${currentTable}`;
+      gameBox.style.display = 'none';
+      congratsBox.style.display = 'none';
+    }
+
+    function startGame(table) {
+      const num = Math.floor(Math.random() * 10) + 1;
+      currentAnswer = table * num;
+      document.getElementById('question').textContent = `¿Cuánto es ${table} × ${num}?`;
+
+      const opciones = shuffle([
+        currentAnswer,
+        currentAnswer + 1,
+        currentAnswer - 1,
+        currentAnswer + 2
+      ]);
+
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      opciones.forEach(opt => {
+        const div = document.createElement('div');
+        div.className = 'draggable';
+        div.textContent = opt;
+        div.setAttribute('draggable', true);
+
+        // Soporte para mouse (escritorio)
+        div.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', opt);
+        });
+
+        // Soporte para táctil (móvil y tablet)
+        div.addEventListener('touchstart', function (e) {
+          const touch = e.touches[0];
+          const moveElem = this.cloneNode(true);
+          moveElem.style.position = 'absolute';
+          moveElem.style.zIndex = 1000;
+          moveElem.style.pointerEvents = 'none';
+          moveElem.classList.add('dragging');
+          document.body.appendChild(moveElem);
+
+          function onTouchMove(ev) {
+            const t = ev.touches[0];
+            moveElem.style.left = t.pageX - moveElem.offsetWidth / 2 + 'px';
+            moveElem.style.top = t.pageY - moveElem.offsetHeight / 2 + 'px';
+          }
+
+          function onTouchEnd(ev) {
+            const dropZone = document.elementFromPoint(
+              ev.changedTouches[0].clientX,
+              ev.changedTouches[0].clientY
+            );
+            if (dropZone && dropZone.id === 'drop-zone') {
+              handleTouchDrop(parseInt(opt));
+            }
+            moveElem.remove();
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+          }
+
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', onTouchEnd);
+        });
+
+        optionsDiv.appendChild(div);
+      });
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const drop = parseInt(e.dataTransfer.getData('text/plain'));
+      if (drop === currentAnswer) {
+        resultEl.textContent = '✅ ¡Correcto!';
+        correctStreak++;
+        if (correctStreak >= 3) {
+          unlockNextIsland();
+          congratsBox.style.display = 'block';
+        }
+      } else {
+        resultEl.textContent = `❌ Incorrecto. La respuesta era ${currentAnswer}`;
+        correctStreak = 0;
+      }
+      verificarCofre();
+      setTimeout(() => {
+        resultEl.textContent = '';
+        if (correctStreak < 3) startGame(currentTable);
+      }, 1500);
+    }
+    function handleTouchDrop(value) {
+      if (value === currentAnswer) {
+        resultEl.textContent = '✅ ¡Correcto!';
+        correctStreak++;
+        if (correctStreak >= 3) {
+          unlockNextIsland();
+          congratsBox.style.display = 'block';
+        }
+      } else {
+        resultEl.textContent = `❌ Incorrecto. La respuesta era ${currentAnswer}`;
+        correctStreak = 0;
+      }
+      verificarCofre();
+      setTimeout(() => {
+        resultEl.textContent = '';
+        if (correctStreak < 3) startGame(currentTable);
+      }, 1500);
+    }
+
+    function unlockNextIsland() {
+      const next = currentTable + 1;
+      if (!unlockedIslas.includes(next) && next <= maxTable) {
+        unlockedIslas.push(next);
+        saveProgress();
+        renderIslas();
+      }
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Swipe táctil
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+      const dx = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(dx) > 50) {
+        if (dx > 0 && currentSlide < maxTable - 1) currentSlide++;
+        else if (dx < 0 && currentSlide > 0) currentSlide--;
+        updateSlidePosition();
+      }
+    });
+
+    // Teclado: Flechas izquierda/derecha
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' && currentSlide < maxTable - 1) {
+        currentSlide++;
+        updateSlidePosition();
+      } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+        currentSlide--;
+        updateSlidePosition();
+      }
+    });
+
+    function updateSlidePosition() {
+      slider.style.transform = `translateX(-${currentSlide * 100}vw)`;
+    }
+
+    document.getElementById('btn-inicio').onclick = () => {
+      window.location.href = "../principal/principal.html";
+    };
+
+    document.getElementById('btn-seguir').onclick = () => {
+      congratsBox.style.display = 'none';
+      correctStreak = 0;
+      startGame(currentTable);
+    };
+    document.getElementById('btn-islas').onclick = () => {
+      gameBox.style.display = 'none';
+      congratsBox.style.display = 'none';
+      updateView();
+    };
+    // Inicializar
+    loadProgress();
+    renderIslas();
+  </script>
+</body>
+
+</html>

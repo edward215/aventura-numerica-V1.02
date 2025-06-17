@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aventura Numérica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <header>
+    <div class="user-wrapper">
+      <div class="user-info" id="user-info">
+        <i class="fas fa-user"></i>
+        <span id="username">Usuario</span>
+      </div>
+      <div class="moneda-container">
+        <img src="../assets/moneda.png" alt="Moneda" class="moneda-icon">
+        <span id="coin-count">0</span>
+      </div>
+    </div>
+
+
+    <div class="buttons-container">
+      <div class="shop-button" onclick="mostrarTienda()">
+        <i class="fas fa-store"></i>
+      </div>
+      <div class="leaderboard-button" onclick="mostrarClasificacion()">
+        <i class="fas fa-table"></i>
+      </div>
+      <div class="trophy-button" onclick="mostrarLogros()">
+        <i class="fas fa-trophy"></i>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="game-container">
+      <div class="game-card first-game" style="background-image: url('../assets/juego1.png');"
+        onclick="window.location.href='../juego1/suma explosiva.html'"></div>
+      <div class="game-title">Suma Explosiva</div>
+    </div>
+
+    <div class="game-container">
+      <div class="game-card second-game" style="background-image: url('../assets/juego3.png');"
+        onclick="window.location.href='../juego2/restamania.html'"></div>
+      <div class="game-title">RestaManía</div>
+    </div>
+
+    <div class="game-container">
+      <div class="game-card second-game"
+        style="background-image: url('../assets/juego4.png'); background-repeat: no-repeat;  background-position: center;"
+        onclick="window.location.href = '../juego3/juego3.html'"></div>
+      <div class="game-title">Isla de las tablas</div>
+    </div>
+
+    <div class="game-container">
+      <div class="game-card" style="background-color: #e0e0e0;">Juego 4</div>
+      <div class="game-title">Próximamente</div>
+    </div>
+
+    <div class="game-container">
+      <div class="game-card" style="background-color: #e0e0e0;">Juego 5</div>
+      <div class="game-title">Próximamente</div>
+    </div>
+  </main>
+  <div id="logros-popup" class="popup">
+    <div class="popup-content">
+      <span class="close-btn" onclick="cerrarLogros()">&times;</span>
+      <h2>Logros</h2>
+
+      <!-- Logro 1 -->
+      <div class="logro">
+        <img src="../assets/juego1.png" class="logro-img" alt="Juego">
+        <div class="logro-info">
+          <h3>Genio de la suma en progreso</h3>
+          <p class="logro-juego">Suma Explosiva</p>
+          <p class="logro-desc">Completa el juego 5 veces</p>
+          <div class="recompensa">
+            Recompensa: 5 <img src="../assets/moneda.png" alt="moneda" class="recompensa-icon">
+          </div>
+          <div class="progress-bar">
+            <div id="barra-progreso" class="progreso"></div>
+          </div>
+          <button class="claim-btn" id="claim-btn-5" onclick="reclamarRecompensa(5)" style="display: none;">🎉 Reclamar
+            recompensa</button>
+        </div>
+        <img id="trofeo-logro" src="../assets/trofeo-gris.png" class="logro-trofeo" alt="Trofeo">
+      </div>
+
+      <!-- Logro 2 -->
+      <div class="logro">
+        <img src="../assets/juego1.png" class="logro-img" alt="Juego">
+        <div class="logro-info">
+          <h3>Amateur sumando</h3>
+          <p class="logro-juego">Suma Explosiva</p>
+          <p class="logro-desc">Completa el juego 10 veces</p>
+          <div class="recompensa">
+            Recompensa: 15 <img src="../assets/moneda.png" alt="moneda" class="recompensa-icon">
+          </div>
+          <div class="progress-bar">
+            <div id="barra-progreso-10" class="progreso"></div>
+          </div>
+          <button class="claim-btn" id="claim-btn-10" onclick="reclamarRecompensa(10)" style="display: none;">🎉
+            Reclamar recompensa</button>
+        </div>
+        <img id="trofeo-logro-10" src="../assets/trofeo-gris.png" class="logro-trofeo" alt="Trofeo">
+      </div>
+
+      <!-- Logro 3 -->
+      <div class="logro">
+        <img src="../assets/juego1.png" class="logro-img" alt="Juego">
+        <div class="logro-info">
+          <h3>Experto en sumas</h3>
+          <p class="logro-juego">Suma Explosiva</p>
+          <p class="logro-desc">Completa el juego 20 veces</p>
+          <div class="recompensa">
+            Recompensa: 30 <img src="../assets/moneda.png" alt="moneda" class="recompensa-icon">
+          </div>
+          <div class="progress-bar">
+            <div id="barra-progreso-20" class="progreso"></div>
+          </div>
+          <button class="claim-btn" id="claim-btn-20" onclick="reclamarRecompensa(20)" style="display: none;">🎉
+            Reclamar recompensa</button>
+        </div>
+        <img id="trofeo-logro-20" src="../assets/trofeo-gris.png" class="logro-trofeo" alt="Trofeo">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function mostrarLogros() {
+      document.getElementById('logros-popup').style.display = 'flex';
+      actualizarProgresoLogro();
+    }
+
+    function cerrarLogros() {
+      document.getElementById('logros-popup').style.display = 'none';
+    }
+
+    function reclamarRecompensa(cantidad) {
+      const key = `recompensaReclamada${cantidad}`;
+      if (!localStorage.getItem(key)) {
+        let monedas = parseInt(localStorage.getItem("monedasUsuario") || "0");
+        monedas += cantidad;
+        localStorage.setItem("monedasUsuario", monedas);
+        document.getElementById("coin-count").textContent = monedas;
+        localStorage.setItem(key, "true");
+        alert(`🎉 Has recibido ${cantidad} monedas por tu logro.`);
+        document.getElementById(`claim-btn-${cantidad}`).style.display = "none";
+      }
+    }
+
+    function actualizarProgresoLogro() {
+      let partidas = parseInt(localStorage.getItem('partidasSumaExplosiva') || '0');
+
+      // LOGRO 5
+      const progreso5 = Math.min(100, (partidas / 5) * 100);
+      document.getElementById('barra-progreso').style.width = progreso5 + '%';
+      const trofeo5 = document.getElementById('trofeo-logro');
+      if (partidas >= 5) {
+        trofeo5.src = '../assets/trofeo-dorado.png';
+        if (!localStorage.getItem('logroDesbloqueado')) {
+          alert('🎉 ¡Felicidades! Has desbloqueado un logro.');
+          localStorage.setItem('logroDesbloqueado', 'true');
+        }
+        if (!localStorage.getItem('recompensaReclamada5')) {
+          document.getElementById('claim-btn-5').style.display = 'inline-block';
+        }
+      } else {
+        trofeo5.src = '../assets/trofeo-gris.png';
+        document.getElementById('claim-btn-5').style.display = 'none';
+      }
+
+      // LOGRO 10
+      const progreso10 = Math.min(100, (partidas / 10) * 100);
+      document.getElementById('barra-progreso-10').style.width = progreso10 + '%';
+      const trofeo10 = document.getElementById('trofeo-logro-10');
+      if (partidas >= 10) {
+        trofeo10.src = '../assets/trofeo-dorado.png';
+        if (!localStorage.getItem('logroDesbloqueado10')) {
+          alert('🏅 ¡Logro desbloqueado! Amateur sumando');
+          localStorage.setItem('logroDesbloqueado10', 'true');
+        }
+        if (!localStorage.getItem('recompensaReclamada15')) {
+          document.getElementById('claim-btn-10').style.display = 'inline-block';
+        }
+      } else {
+        trofeo10.src = '../assets/trofeo-gris.png';
+        document.getElementById('claim-btn-10').style.display = 'none';
+      }
+
+      // LOGRO 20
+      const progreso20 = Math.min(100, (partidas / 20) * 100);
+      document.getElementById('barra-progreso-20').style.width = progreso20 + '%';
+      const trofeo20 = document.getElementById('trofeo-logro-20');
+      if (partidas >= 20) {
+        trofeo20.src = '../assets/trofeo-dorado.png';
+        if (!localStorage.getItem('logroDesbloqueado20')) {
+          alert('🏆 ¡Logro desbloqueado! Experto en sumas');
+          localStorage.setItem('logroDesbloqueado20', 'true');
+        }
+        if (!localStorage.getItem('recompensaReclamada30')) {
+          document.getElementById('claim-btn-20').style.display = 'inline-block';
+        }
+      } else {
+        trofeo20.src = '../assets/trofeo-gris.png';
+        document.getElementById('claim-btn-20').style.display = 'none';
+      }
+    }
+
+
+    function mostrarClasificacion() {
+      alert("Aquí aparecerá la tabla de clasificación. ¡Próximamente!");
+    }
+    function mostrarTienda() {
+      alert("🛒 Próximamente estará disponible la tienda.");
+    }
+    function pedirNombreUsuario() {
+      let nombre = localStorage.getItem("nombreUsuario");
+      if (!nombre) {
+        nombre = prompt("¡Hola! Ingresa tu nombre para comenzar:");
+        if (nombre) {
+          localStorage.setItem("nombreUsuario", nombre);
+        } else {
+          nombre = "Invitado";
+        }
+      }
+      document.getElementById("username").textContent = nombre;
+    }
+    function inicializarMonedas() {
+      let monedas = localStorage.getItem("monedasUsuario");
+      if (!monedas) {
+        monedas = 0;
+        localStorage.setItem("monedasUsuario", monedas);
+      }
+      document.getElementById("coin-count").textContent = monedas;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const popup = document.querySelector('.popup');
+      const popupContent = document.querySelector('.popup-content');
+      const closeBtn = document.querySelector('.close-btn');
+
+      // Cerrar al hacer clic en la "X"
+      closeBtn.addEventListener('click', () => {
+        popup.style.display = 'none';
+      });
+
+      // Cerrar al hacer clic fuera del contenido
+      popup.addEventListener('click', (event) => {
+        if (!popupContent.contains(event.target)) {
+          popup.style.display = 'none';
+        }
+      });
+    });
+    // Ejecutar al cargar
+    window.onload = function () {
+      pedirNombreUsuario();
+      inicializarMonedas();
+      actualizarProgresoLogro();
+    }
+
+  </script>
+
+</body>
+
+</html>
